@@ -9,6 +9,7 @@ const translations = {
     nav_admin: { en: "⚙️ Admin Panel", ar: "⚙️ لوحة التحكم" },
     nav_backup: { en: "💾 Backup", ar: "💾 النسخ الاحتياطي" },
     nav_visits: { en: "🔧 Service Visits", ar: "🔧 زيارات الخدمة" },
+    nav_upcoming: { en: "📅 Upcoming Visits", ar: "📅 الزيارات القادمة" },
     nav_vendors: { en: "🏪 Vendors", ar: "🏪 الموردين" },
     nav_customers: { en: "👥 Customers", ar: "👥 العملاء" },
     logout: { en: "🚪 Logout", ar: "🚪 تسجيل الخروج" },
@@ -314,6 +315,24 @@ const translations = {
     select_customer_vehicle: { en: "Select Customer & Vehicle", ar: "اختر العميل والمركبة" },
     search_customer_placeholder: { en: "Search customer or plate...", ar: "بحث عن عميل أو لوحة..." },
     new_customer: { en: "+ New Customer", ar: "+ عميل جديد" },
+    // Upcoming Visits Page
+    upcoming_visits_title: { en: "📅 Upcoming Visits", ar: "📅 الزيارات القادمة" },
+    from_date: { en: "From Date", ar: "من تاريخ" },
+    to_date: { en: "To Date", ar: "إلى تاريخ" },
+    status_filter: { en: "Status", ar: "الحالة" },
+    all: { en: "All", ar: "الكل" },
+    overdue: { en: "Overdue", ar: "متأخرة" },
+    today: { en: "Today", ar: "اليوم" },
+    tomorrow: { en: "Tomorrow", ar: "غداً" },
+    this_week: { en: "This Week", ar: "هذا الأسبوع" },
+    days: { en: "days", ar: "أيام" },
+    apply_filter: { en: "Apply", ar: "تطبيق" },
+    go_to_visits: { en: "Go to Visits", ar: "الذهاب للزيارات" },
+    no_upcoming_found: { en: "No upcoming visits found matching filters", ar: "لا توجد زيارات قادمة تطابق البحث" },
+    service: { en: "Service", ar: "الخدمة" },
+
+    // Existing:
+    customer_vehicle: { en: "Customer & Vehicle", ar: "العميل والمركبة" },
 };
 
 function setLanguage(lang) {
@@ -395,3 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Expose to window
+window.translations = translations;

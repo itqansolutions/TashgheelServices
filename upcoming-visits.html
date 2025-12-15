@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Visits - Tasgheel POS</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .filter-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .visit-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            border-left: 5px solid #ccc;
+            /* Default color */
+            transition: transform 0.2s;
+        }
+
+        .visit-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="language-switcher">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ar">AR</button>
+    </div>
+
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Tashgheel Services</h2>
+            </div>
+            <nav>
+                <a href="visits.html" class="nav-item" data-i18n-key="nav_visits" data-i18n-ar="🔧 زيارات الخدمة">🔧
+                    Service Visits</a>
+                <a href="upcoming-visits.html" class="nav-item active" data-i18n-key="nav_upcoming"
+                    data-i18n-ar="📅 زيارات قادمة">📅 Upcoming Visits</a>
+                <a href="vendors.html" class="nav-item" data-i18n-key="nav_vendors" data-i18n-ar="🏪 الموردين">🏪
+                    Vendors</a>
+                <a href="customers.html" class="nav-item" data-i18n-key="nav_customers" data-i18n-ar="👥 العملاء">👥
+                    Customers</a>
+                <a href="products.html" class="nav-item" data-i18n-key="nav_products" data-i18n-ar="📦 قطع الغيار">📦
+                    Spare Parts</a>
+                <a href="receipts.html" class="nav-item" data-i18n-key="nav_receipts" data-i18n-ar="🧾 الفواتير">🧾
+                    Receipts</a>
+                <a href="reports.html" class="nav-item" data-i18n-key="nav_reports" data-i18n-ar="📈 التقارير">📈
+                    Reports</a>
+                <a href="salesmen.html" class="nav-item" data-i18n-key="nav_salesmen" data-i18n-ar="👔 الموظفين">👔
+                    Employees</a>
+                <a href="expenses.html" class="nav-item" data-i18n-key="nav_expenses" data-i18n-ar="💰 المصاريف">💰
+                    Expenses</a>
+                <a href="admin.html" class="nav-item" data-i18n-key="nav_admin" data-i18n-ar="⚙️ لوحة التحكم">⚙️ Admin
+                    Panel</a>
+                <a href="backup.html" class="nav-item" data-i18n-key="nav_backup" data-i18n-ar="💾 النسخ الاحتياطي">💾
+                    Backup</a>
+                <a href="#" onclick="if(confirm('Logout?')) window.logout();" class="nav-item" data-i18n-key="logout"
+                    data-i18n-ar="🚪 تسجيل الخروج">🚪 Logout</a>
+            </nav>
+            <div class="sidebar-footer"
+                style="text-align:center; padding:15px; font-size:0.85em; border-top:1px solid #34495e;">
+                <strong>Tashgheel Services</strong><br>
+                <small style="color:#95a5a6;">powered by itqansolutions © 2025</small>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 data-i18n-key="upcoming_visits_title" data-i18n-ar="📅 الزيارات القادمة">📅 Upcoming Visits</h1>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span id="currentUserName">User</span>
+                </div>
+            </header>
+
+            <section class="content-area">
+
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label data-i18n-key="from_date" data-i18n-ar="من تاريخ">From Date</label>
+                        <input type="date" id="filterFromDate">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label data-i18n-key="to_date" data-i18n-ar="إلى تاريخ">To Date</label>
+                        <input type="date" id="filterToDate">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label data-i18n-key="status_filter" data-i18n-ar="الحالة">Status</label>
+                        <select id="filterStatus" style="padding:10px; border:1px solid #ddd; border-radius:4px;">
+                            <option value="all" data-i18n-key="all" data-i18n-ar="الكل">All</option>
+                            <option value="overdue" data-i18n-key="overdue" data-i18n-ar="متأخرة">Overdue</option>
+                            <option value="today" data-i18n-key="today" data-i18n-ar="اليوم">Today</option>
+                            <option value="tomorrow" data-i18n-key="tomorrow" data-i18n-ar="غداً">Tomorrow</option>
+                            <option value="week" data-i18n-key="this_week" data-i18n-ar="هذا الأسبوع">This Week</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="renderUpcoming()" data-i18n-key="apply_filter"
+                        data-i18n-ar="تطبيق">Apply</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()" data-i18n-key="reset"
+                        data-i18n-ar="إعادة تعيين">Reset</button>
+                </div>
+
+                <!-- Grid -->
+                <div id="upcomingContainer">
+                    <!-- Loaded by JS -->
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/upcoming-visits-app.js"></script>
+</body>
+
+</html>

@@ -247,6 +247,8 @@ function updateEditorUI(customer, vehicle) {
         document.getElementById('visitTechnician').value = '';
     }
 
+    document.getElementById('visitPaymentMethod').value = currentVisit.paymentMethod || 'cash';
+
     renderVisitItems();
 }
 
@@ -430,9 +432,10 @@ function saveVisit(isDraft = true) {
             service: document.getElementById('nextVisitService')?.value || '',
             notes: document.getElementById('nextVisitNotes')?.value || ''
         };
-    } else {
         currentVisit.nextVisit = null;
     }
+
+    currentVisit.paymentMethod = document.getElementById('visitPaymentMethod').value || 'cash';
 
     // Recalculate totals for storage
     let labor = currentVisit.services.reduce((sum, s) => sum + parseFloat(s.cost), 0);
