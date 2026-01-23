@@ -17,13 +17,31 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  loadParts();
+  loadParts(); // Initial load
   loadCategories();
-  loadVendors(); // Load vendors for dropdown
+  loadVendors();
 
   document.getElementById("product-form").addEventListener("submit", handleAddPart);
   document.getElementById("category-form").addEventListener("submit", handleAddCategory);
+  document.getElementById("load-more-btn").addEventListener("click", loadMoreParts);
 });
+
+// State for pagination
+let allPartsCache = [];
+let displayedCount = 0;
+const ITEMS_PER_PAGE = 50;
+
+// Custom Modal instead of alert
+function showMsg(title, message) {
+  document.getElementById('msgModalTitle').textContent = title;
+  document.getElementById('msgModalContent').textContent = message;
+  document.getElementById('messageModal').style.display = 'flex';
+}
+
+function closeMsgModal() {
+  document.getElementById('messageModal').style.display = 'none';
+}
+window.closeMsgModal = closeMsgModal;
 
 // Logout handler
 function handleLogout() {
@@ -47,18 +65,31 @@ function loadVendors() {
   });
 }
 
-function loadParts() {
-  const parts = window.DB.getParts();
-  const vendors = window.DB.getVendors();
-  const tbody = document.getElementById("product-table-body");
-  tbody.innerHTML = "";
+function loadParts(refresh = true) {
+  if (refresh) {
+    // Reload from DB - leveraging new DB cache
+    allPartsCache = window.DB.getParts();
+    displayedCount = 0;
+    document.getElementById("product-table-body").innerHTML = "";
+  }
 
-  if (parts.length === 0) {
+  const tbody = document.getElementById("product-table-body");
+  const vendors = window.DB.getVendors();
+
+  if (allPartsCache.length === 0) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No spare parts found.</td></tr>';
+    document.getElementById('pagination-controls').style.display = 'none';
     return;
   }
 
-  parts.forEach((p) => {
+  // Slice data for current page
+  const nextBatch = allPartsCache.slice(displayedCount, displayedCount + ITEMS_PER_PAGE);
+
+  if (nextBatch.length === 0 && displayedCount > 0) {
+    return; // No more items
+  }
+
+  nextBatch.forEach((p) => {
     const vendor = vendors.find(v => v.id == p.vendorId);
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -77,6 +108,25 @@ function loadParts() {
     `;
     tbody.appendChild(row);
   });
+
+  displayedCount += nextBatch.length;
+  updatePaginationUI();
+}
+
+function loadMoreParts() {
+  loadParts(false);
+}
+
+function updatePaginationUI() {
+  const controls = document.getElementById('pagination-controls');
+  const countSpan = document.getElementById('showing-count');
+
+  if (displayedCount < allPartsCache.length) {
+    controls.style.display = 'block';
+    countSpan.textContent = `Showing ${displayedCount} of ${allPartsCache.length}`;
+  } else {
+    controls.style.display = 'none';
+  }
 }
 
 function handleAddPart(e) {
@@ -92,7 +142,7 @@ function handleAddPart(e) {
   const cost = parseFloat(document.getElementById("product-cost").value) || 0;
   const stock = parseInt(document.getElementById("product-stock").value) || 0;
 
-  if (!partNumber || !name || isNaN(price)) return alert(t('fill_required_fields'));
+  if (!partNumber || !name || isNaN(price)) return showMsg('Error', t('fill_required_fields'));
 
   const part = {
     id: id ? parseInt(id) : Date.now(),
@@ -104,16 +154,15 @@ function handleAddPart(e) {
     price,
     cost,
     stock,
-    initialStock: id ? undefined : parseInt(stock), // Only set for new parts
-    createdAt: id ? undefined : new Date().toISOString(), // Only set for new parts
+    initialStock: id ? undefined : parseInt(stock),
+    createdAt: id ? undefined : new Date().toISOString(),
     lastRestockDate: new Date().toISOString()
   };
 
-  // Check for duplicate Part Number if new
-  const existing = window.DB.getParts();
-  const duplicate = existing.find(p => p.partNumber === partNumber && p.id !== part.id);
+  // Check for duplicate Part Number if new - use cache
+  const duplicate = allPartsCache.find(p => p.partNumber === partNumber && p.id !== part.id);
   if (duplicate) {
-    alert(t('part_exists'));
+    showMsg('Attention', t('part_exists'));
     return;
   }
 
@@ -127,20 +176,20 @@ function handleAddPart(e) {
 
   e.target.reset();
   document.getElementById("product-id").value = "";
-  loadParts();
-  alert(t('part_saved'));
+  loadParts(true); // Refresh list
+  showMsg('Success', t('part_saved'));
 }
 
 function deletePart(id) {
   if (confirm(t('delete_part_confirm'))) {
     window.DB.deletePart(id);
-    loadParts();
+    loadParts(true);
   }
 }
 
 function editPart(id) {
   const part = window.DB.getPart(id);
-  if (!part) return alert(t('part_not_found'));
+  if (!part) return showMsg('Error', t('part_not_found'));
 
   document.getElementById("product-id").value = part.id;
   document.getElementById("product-code").value = part.partNumber;
@@ -190,7 +239,7 @@ function handleAddCategory(e) {
   input.value = "";
 }
 
-// Stock Audit functions can stay similar but need to use DB
+// Stock Audit functions
 function openStockAudit() {
   const parts = window.DB.getParts();
   const tbody = document.getElementById('auditTableBody');
@@ -210,7 +259,6 @@ function openStockAudit() {
 
   document.getElementById('auditModal').style.display = 'flex';
 
-  // Re-attach listeners
   document.querySelectorAll('.actual-stock-input').forEach(input => {
     input.addEventListener('input', updateAuditDiff);
   });
@@ -244,9 +292,9 @@ function saveStockAudit() {
     }
   });
 
-  alert(t('stock_audit_saved'));
+  showMsg('Success', t('stock_audit_saved'));
   closeStockAudit();
-  loadParts();
+  loadParts(true);
 }
 
 function closeStockAudit() {

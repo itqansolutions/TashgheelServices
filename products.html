@@ -135,6 +135,10 @@
                 <!-- Populated by JS -->
               </tbody>
             </table>
+            <div id="pagination-controls" style="text-align: center; margin-top: 15px; display: none;">
+              <button id="load-more-btn" class="btn btn-secondary">⬇️ Load More Parts</button>
+              <span id="showing-count" style="margin-left: 10px; color: #666;"></span>
+            </div>
           </div>
         </div>
 
@@ -167,21 +171,34 @@
   <div id="auditModal" class="modal" style="display: none;">
     <div class="modal-content">
       <h3 data-i18n-key="stock_audit">Stock Audit</h3>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th data-i18n-key="part_no">Code</th>
-            <th data-i18n-key="part_name">Product</th>
-            <th data-i18n-key="stock">Recorded</th>
-            <th data-i18n-key="actual_stock">Actual</th>
-            <th data-i18n-key="difference">Difference</th>
-          </tr>
-        </thead>
-        <tbody id="auditTableBody"></tbody>
-      </table>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-i18n-key="part_no">Code</th>
+              <th data-i18n-key="part_name">Product</th>
+              <th data-i18n-key="stock">Recorded</th>
+              <th data-i18n-key="actual_stock">Actual</th>
+              <th data-i18n-key="difference">Difference</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+      </div>
       <div style="margin-top: 10px; text-align: right;">
         <button onclick="saveStockAudit()" class="btn btn-success" data-i18n="save">✅ Save</button>
         <button onclick="closeStockAudit()" class="btn btn-danger" data-i18n="cancel">❌ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic Message Modal (Replaces Alert) -->
+  <div id="messageModal" class="modal" style="display: none; z-index: 10000;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <h3 id="msgModalTitle">Message</h3>
+      <p id="msgModalContent" style="margin: 20px 0; font-size: 1.1em;"></p>
+      <div style="margin-top: 20px;">
+        <button onclick="closeMsgModal()" class="btn btn-primary">OK</button>
       </div>
     </div>
   </div>

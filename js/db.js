@@ -62,11 +62,13 @@ window.DB = window.DB || {
     },
 
     // === SPARE PARTS (Inventory) ===
+    _partsCache: null, // In-memory cache
+
     getParts: function () {
-        // Reuse existing 'products' key if preferred, or use new 'spare_parts'
-        // Plan said 'spare_parts', but let's migrate default products to it if empty?
-        // For now, let's use 'spare_parts' to keep it clean.
-        return window.EnhancedSecurity.getSecureData('spare_parts') || [];
+        if (!this._partsCache) {
+            this._partsCache = window.EnhancedSecurity.getSecureData('spare_parts') || [];
+        }
+        return this._partsCache;
     },
 
     getPart: function (id) {
@@ -87,13 +89,17 @@ window.DB = window.DB || {
             parts.push(part);
         }
 
-        return window.EnhancedSecurity.storeSecureData('spare_parts', parts);
+        const success = window.EnhancedSecurity.storeSecureData('spare_parts', parts);
+        if (success) this._partsCache = parts; // Update cache on success
+        return success;
     },
 
     deletePart: function (id) {
-        const parts = this.getParts();
-        const filtered = parts.filter(p => p.id !== id);
-        return window.EnhancedSecurity.storeSecureData('spare_parts', filtered);
+        let parts = this.getParts();
+        parts = parts.filter(p => p.id !== id);
+        const success = window.EnhancedSecurity.storeSecureData('spare_parts', parts);
+        if (success) this._partsCache = parts;
+        return success;
     },
 
     updateStock: function (partId, qtyChange) {
@@ -101,7 +107,9 @@ window.DB = window.DB || {
         const index = parts.findIndex(p => p.id == partId);
         if (index >= 0) {
             parts[index].stock = (parseInt(parts[index].stock) || 0) + parseInt(qtyChange);
-            return window.EnhancedSecurity.storeSecureData('spare_parts', parts);
+            const success = window.EnhancedSecurity.storeSecureData('spare_parts', parts);
+            if (success) this._partsCache = parts;
+            return success;
         }
         return false;
     },
